@@ -1,10 +1,15 @@
 import re
 import math
+from collections import Counter
 
 with open('woof.txt') as f:
 	woof = f.read()
 
+c = Counter(woof)
+print(c)
 woof = re.sub(r'[^\s]', '.', woof)
+# woof = re.sub(r'[xdcolk]', '@', woof)
+# woof = re.sub(r'[\',;:]',  '.', woof)
 print(woof)
 
 tape = []

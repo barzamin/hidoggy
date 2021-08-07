@@ -8,8 +8,7 @@
 	xor cx, cx
 
 	; -- start at 0,0
-	mov dh, 0		; row
-	mov dl, 0		; col
+	mov dx, 0		; dh : row, dl : col
 
 	; -- clear screen by changing mode
 	mov ah, 0x0
@@ -30,12 +29,12 @@
 	cmova ax, [mark]	; al should now contain approprate char
 				; al = (al > 0b111111) ? '.' : ' '
 
-	mov bh, 0x0 		; page 0
+	mov bh, 0x0		; page 0
 	mov ah, 0x02		; ah = 0x2 : set cursor position
-	int 0x10 		; set cursor pos using dx
+	int 0x10		; set cursor pos using dx
 
 	mov ah, 0x9		; ah = 0x9 : write char w attr at cursor
-	mov bl, dh		; attr 0x0f (white on black)
+	mov bl, 0x0f		; attr 0x0f (white on black)
 	int 0x10
 
 	add dl, cl		; increment col by number of chars we wrote
@@ -48,7 +47,7 @@
 .load:
 	lodsb
 	or al, al
-	jnz .unpack		; if we're nto done yet, loop
+	jnz .unpack		; if we're not done yet, loop
 
 hang:
 	jmp hang
@@ -58,8 +57,7 @@ woof:
 	db 0x0 ; end marker
 
 space:	db ' '
-mark:	db '.'
-        db 0x0 			; required bc we cmova all 16 bytes to ax from this
+mark:	db 0x3 ;'♥'; an extra byte here gets loaded by cmova but we overwrite
 
 	times 510-($-$$) db 0	; pad til end of sector
 	dw 0xaa55		; magic
