@@ -62,13 +62,15 @@ load:
 	jnz unpack		; if we're not done yet, loop
 
 	mov dx, 0
+	mov cl, 0
+	call bump_cursor
 
-	; add byte [t], 1
-	; mov si, woof
-	; jmp load
+	add byte [t], 1
+	mov si, woof
+	jmp load
 
-hang:
-	jmp hang
+; hang:
+; 	jmp hang
 
 cls:
 	; -- clear screen by changing mode
