@@ -35,7 +35,7 @@ for char, n in tape:
     x |= (n & 0b111111)
 
     if char == '.':
-        x |= 0b1 << 7
+        x |= 0b1 << 6
 
     packed_tape.append(x)
 
