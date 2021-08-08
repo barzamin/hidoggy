@@ -6,6 +6,7 @@
 
 	;; vars
 	%define t 0x7e01
+	%define i 0x7e02
 
 	;; start doing shit
 	xor ax, ax		; ax = 0
@@ -30,27 +31,27 @@
 
 unpack:
 	; data is in AL
-	mov cl, al		; copy to cx for count
-	and cx, 0b111111	; mask off count
+	mov byte [i], al	; copy to cx for count
+	and byte [i], 0b111111	; mask off count
 
 	cmp al, 0b111111	; if > this, we know we're printing a '.'
 	jbe .print_nothing
 
+	mov cx, 1
+.printloop:
 	mov al, 0x3
-	mov ah, 0x9		; ah = 0x9 : write char w attr at cursor
+	mov ah, 0x9			; ah = 0x9 : write char w attr at cursor
 	mov bh, 0x0 		; page = 0
 	mov bl, 0x0f		; attr 0x0f (white on black)
 	int 0x10
+	call bump_cursor
+	dec byte [i]
+	jnz .printloop
+	jmp load
 
 .print_nothing:
-	add dl, cl		; increment col by number of chars we 'wrote'
-	cmp dl, 61		; is our col past end?
-	jl .no_row_incr		; jump over if we don't need to update
-	mov dl, 0 		; reset col
-	add dh, 1		; increment row
-.no_row_incr:
-	mov ah, 0x02		; ah = 0x2 : set cursor position
-	int 0x10		; set cursor pos using dx
+	mov cl, byte [i]
+	call bump_cursor
 
 load:
 	lodsb
@@ -73,12 +74,22 @@ cls:
 	int 0x10
 	ret
 
+;;; takes cx as param
+;;; clobbers dx, ah
+bump_cursor:
+	add dl, cl		; increment col by number of chars we 'wrote'
+	cmp dl, 61		; is our col past end?
+	jl .no_row_incr		; jump over if we don't need to update
+	mov dl, 0 		; reset col
+	add dh, 1		; increment row
+.no_row_incr:
+	mov ah, 0x02		; ah = 0x2 : set cursor position
+	int 0x10		; set cursor pos using dx
+	ret
+
 woof:
 	incbin "rle.dat"
 	db 0x0 ; end marker
-
-space:	db ' '
-mark:	db 0x3 ;'♥'; an extra byte here gets loaded by cmova but we overwrite
 
 	times 510-($-$$) db 0	; pad til end of sector
 	dw 0xaa55		; magic
