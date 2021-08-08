@@ -19,9 +19,9 @@
 
 	call cls		; clear screen
 
-	; mov ah, 0x01
-	; mov ch, 0x3f
-	; int 0x10		; disable cursor
+	mov ah, 0x01
+	mov ch, 0x3f
+	int 0x10		; disable cursor
 
 	mov byte [t], 0
 
@@ -42,7 +42,16 @@ unpack:
 	mov al, 0x3
 	mov ah, 0x9			; ah = 0x9 : write char w attr at cursor
 	mov bh, 0x0 		; page = 0
-	mov bl, 0x0f		; attr 0x0f (white on black)
+	; mov bl, 0x0f		; attr 0x0f (white on black)
+
+	mov bl, dl
+	add bl, dh
+	add bl, byte [t]
+	; shr bl, 
+	add bl, 1
+	; mov bl, byte [t]
+	; and bl, 0xf
+
 	int 0x10
 	call bump_cursor
 	dec byte [i]
@@ -58,14 +67,14 @@ load:
 	or al, al
 	jnz unpack		; if we're not done yet, loop
 
-	; mov dx, 0
+	mov dx, 0
 
-	; add byte [t], 1
-	; mov si, woof
-	; jmp .load
+	add byte [t], 1
+	mov si, woof
+	jmp load
 
-hang:
-	jmp hang
+; hang:
+; 	jmp hang
 
 cls:
 	; -- clear screen by changing mode
