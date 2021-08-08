@@ -3,17 +3,26 @@
 	; *******************
 	; *** boop sector ***
 	; *******************
+
+	;; vars
+	%define t 0x7e01
+
+	;; start doing shit
 	xor ax, ax		; ax = 0
 	mov ds, ax		; ds = ax = 0
 	xor cx, cx
+	mov sp, 0
 
 	; -- start at 0,0
 	mov dx, 0		; dh : row, dl : col
 
-	; -- clear screen by changing mode
-	mov ah, 0x0
-	mov al, 0x3		; 0x3 = text, 80x25, 16color
-	int 0x10
+	call cls		; clear screen
+
+	mov ah, 0x01
+	mov ch, 0x3f
+	int 0x10		; disable cursor
+
+	mov byte [t], 0
 
 	cld
 	mov si, woof
@@ -35,6 +44,7 @@
 
 	mov ah, 0x9		; ah = 0x9 : write char w attr at cursor
 	mov bl, 0x0f		; attr 0x0f (white on black)
+
 	int 0x10
 
 	add dl, cl		; increment col by number of chars we wrote
@@ -49,8 +59,21 @@
 	or al, al
 	jnz .unpack		; if we're not done yet, loop
 
+	mov dx, 0
+
+	add byte [t], 1
+	mov si, woof
+	jmp .load
+
 hang:
 	jmp hang
+
+cls:
+	; -- clear screen by changing mode
+	mov ah, 0x0
+	mov al, 0x3		; 0x3 = text, 80x25, 16color
+	int 0x10
+	ret
 
 woof:
 	incbin "rle.dat"

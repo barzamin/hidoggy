@@ -22,7 +22,7 @@ for char in woof:
 	except IndexError:
 		tape.append((char, 1))
 
-# print(tape)
+print(tape)
 
 # print(max(tape, key=lambda x: x[1]))
 # print(math.log2(max(tape, key=lambda x: x[1])[1])) # 5.672425341971495; 6 bits
