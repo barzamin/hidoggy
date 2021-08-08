@@ -35,32 +35,26 @@ unpack:
 	and byte [i], 0b111111	; mask off count
 
 	cmp al, 0b111111	; if > this, we know we're printing a '.'
-	jbe .print_nothing
+	mov al, ' '
+	jl .print_nothing
+	mov al, 0x3
+.print_nothing:
 
 	mov cx, 1
 .printloop:
-	mov al, 0x3
 	mov ah, 0x9			; ah = 0x9 : write char w attr at cursor
 	mov bh, 0x0 		; page = 0
-	; mov bl, 0x0f		; attr 0x0f (white on black)
 
 	mov bl, dl
 	add bl, dh
 	add bl, byte [t]
-	; shr bl, 
 	add bl, 1
-	; mov bl, byte [t]
-	; and bl, 0xf
 
 	int 0x10
 	call bump_cursor
 	dec byte [i]
 	jnz .printloop
 	jmp load
-
-.print_nothing:
-	mov cl, byte [i]
-	call bump_cursor
 
 load:
 	lodsb
@@ -69,12 +63,12 @@ load:
 
 	mov dx, 0
 
-	add byte [t], 1
-	mov si, woof
-	jmp load
+	; add byte [t], 1
+	; mov si, woof
+	; jmp load
 
-; hang:
-; 	jmp hang
+hang:
+	jmp hang
 
 cls:
 	; -- clear screen by changing mode
